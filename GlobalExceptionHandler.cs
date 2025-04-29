@@ -49,8 +49,11 @@ namespace WorkerServiceDemo
             problemDetails.Status = httpContext.Response.StatusCode;
             await httpContext.Response.WriteAsJsonAsync(problemDetails, cancellationToken).ConfigureAwait(false);
 
-            _logger.LogError("{@logProperty} {@exProperty} {@srcProperty}",
-                "fromHandler", exception.Message, exception.Source);
+            using (_logger.BeginScope("Adding exception source data: {sourceProperty}", exception.Source))
+            {
+                _logger.LogError("{@logProperty} {@exProperty} {@srcProperty}",
+                    "fromHandler", exception.Message, exception.Source);
+            }
 
             return false;
         }

@@ -1,16 +1,18 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using Serilog;
+using Serilog.Exceptions;
 using System.Diagnostics;
 using WorkerServiceDemo;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+//builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
 
 builder.Services.AddControllers();
@@ -22,6 +24,8 @@ builder.Services.AddSwaggerGen(setup =>
 
 var Logger = new LoggerConfiguration()
     .ReadFrom.Configuration(builder.Configuration)
+    .Enrich.FromLogContext()
+    .Enrich.WithExceptionDetails()
     .CreateLogger();
 
 builder.Logging.ClearProviders();
@@ -42,25 +46,25 @@ if (app.Environment.IsDevelopment() || app.Environment.IsStaging())
 }
 
 app.UseHttpsRedirection();
-app.UseExceptionHandler();
+//app.UseExceptionHandler();
 
-//app.UseExceptionHandler(
-//options =>
-//{
-//    options.Run(
-//    async httpcontext =>
-//    {
-//        httpcontext.Response.ContentType = "text/html";
-//        var ex = httpcontext.Features.Get<IExceptionHandlerFeature>();
-//        if (ex != null)
-//        {
-//            await httpcontext.Response.WriteAsJsonAsync(new { error = ex.Error.Message });
+app.UseExceptionHandler(
+options =>
+{
+    options.Run(
+    async httpcontext =>
+    {
+        httpcontext.Response.ContentType = "text/html";
+        var ex = httpcontext.Features.Get<IExceptionHandlerFeature>();
+        if (ex != null)
+        {
+            await httpcontext.Response.WriteAsJsonAsync(new { error = ex.Error.Message });
 
-//            Logger.Warning("{@logProperty} {@exProperty} {@srcProperty}",
-//                "fromprogramcs", ex.Error.Message, ex.Error.Source);
-//        }
-//    });
-//});
+            Logger.Warning("{@logProperty} {@exProperty} {@srcProperty}",
+                "fromprogramcs", ex.Error.Message, ex.Error.Source);
+        }
+    });
+});
 
 app.UseRouting();
 app.UseAuthentication();
