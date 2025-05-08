@@ -3,7 +3,7 @@ using System.Linq;
 using Serilog.Events;
 using Serilog.Formatting;
 
-namespace WorkerServiceDemo
+namespace WorkerServiceDemo.Helpers
 {
     public class CustomLogEventFormatter : ITextFormatter
     {

@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.Extensions.Logging;
 using System;
+using WorkerServiceDemo.Helpers;
 
 namespace WorkerServiceDemo
 {
@@ -44,17 +45,15 @@ namespace WorkerServiceDemo
                     break;
             }
 
-            httpContext.Response.StatusCode = errorResponse.StatusCode;
-
-            problemDetails.Status = httpContext.Response.StatusCode;
-            await httpContext.Response.WriteAsJsonAsync(problemDetails, cancellationToken).ConfigureAwait(false);
-
             using (_logger.BeginScope("Adding exception source data: {sourceProperty}", exception.Source))
             {
-                _logger.LogError("{@logProperty} {@exProperty} {@srcProperty}",
-                    "fromHandler", exception.Message, exception.Source);
+                _logger.LogError("{@dateProperty} {@logProperty} {@exProperty} {@srcProperty}",
+                    DateTime.Now, "fromHandler", exception.Message, exception.Source);
             }
 
+            httpContext.Response.StatusCode = errorResponse.StatusCode;
+            problemDetails.Status = httpContext.Response.StatusCode;
+            await httpContext.Response.WriteAsJsonAsync(problemDetails, cancellationToken).ConfigureAwait(false);
             return false;
         }
     }

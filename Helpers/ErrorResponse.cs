@@ -1,4 +1,4 @@
-namespace WorkerServiceDemo
+namespace WorkerServiceDemo.Helpers
 {
     public class ErrorResponse
     {
