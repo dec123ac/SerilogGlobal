@@ -1,14 +1,10 @@
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Diagnostics;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using Serilog;
 using Serilog.Events;
-using Serilog.Exceptions;
 using Serilog.Sinks.MSSqlServer;
 using System.Collections.ObjectModel;
 using System.Data;
@@ -66,6 +62,7 @@ columnOptions.Store.Remove(StandardColumn.Level);
 columnOptions.Store.Remove(StandardColumn.TimeStamp);
 columnOptions.Store.Remove(StandardColumn.Exception);
 columnOptions.Store.Remove(StandardColumn.Properties);
+columnOptions.TimeStamp.ColumnName = "LOG_DATE";
 
 var sinkOptions = new MSSqlServerSinkOptions
 {
@@ -73,14 +70,14 @@ var sinkOptions = new MSSqlServerSinkOptions
     TableName = "NewLogs"
 };
 
-builder.Host.UseSerilog((_, serviceProvider, loggerConfiguration) =>
+builder.Services.AddSerilog((serviceProvider, loggerConfiguration) =>
 {
     loggerConfiguration
-        .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
-        .Enrich.FromLogContext()
-        .Enrich.With(serviceProvider.GetRequiredService<SourceEnricher>())
+        .MinimumLevel.Information()
+        .MinimumLevel.Override("Microsoft", LogEventLevel.Error)
+        .Enrich.With<SourceEnricher>()
         .WriteTo.MSSqlServer(
-            builder.Configuration.GetConnectionString("DefaultConnection"),
+            connectionString: builder.Configuration.GetConnectionString("DefaultConnection"),
             columnOptions: columnOptions,
             sinkOptions: sinkOptions);
 });
@@ -102,24 +99,6 @@ if (app.Environment.IsDevelopment() || app.Environment.IsStaging())
 
 app.UseHttpsRedirection();
 app.UseExceptionHandler();
-
-//app.UseExceptionHandler(
-//options =>
-//{
-//    options.Run(
-//    async httpcontext =>
-//    {
-//        httpcontext.Response.ContentType = "text/html";
-//        var ex = httpcontext.Features.Get<IExceptionHandlerFeature>();
-//        if (ex != null)
-//        {
-//            await httpcontext.Response.WriteAsJsonAsync(new { error = ex.Error.Message });
-
-//            Logger.Warning("{@logProperty} {@exProperty} {@srcProperty}",
-//                "fromprogramcs", ex.Error.Message, ex.Error.Source);
-//        }
-//    });
-//});
 
 app.UseRouting();
 app.UseAuthentication();

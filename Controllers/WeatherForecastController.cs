@@ -25,19 +25,6 @@ namespace WorkerServiceDemo.Controllers
         [HttpGet]
         public IEnumerable<WeatherForecast> Get()
         {
-            //try
-            //{
-            //    throw new ArgumentException();
-            //}
-            //catch (ArgumentException exception)
-            //{
-            //    using (_logger.BeginScope("Adding exception source {UserName}", exception.Source))
-            //    {
-            //        _logger.LogError("{@dateProperty} {@logProperty} {@exProperty} {@srcProperty}",
-            //            DateTime.Now, "fromController", exception.Message, exception.Source);
-            //    }
-            //}
-
             throw new ArgumentException();
 
             var rng = new Random();

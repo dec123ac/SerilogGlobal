@@ -45,11 +45,9 @@ namespace WorkerServiceDemo
                     break;
             }
 
-            using (_logger.BeginScope("Adding exception source data: {sourceProperty}", exception.Source))
-            {
-                _logger.LogError("{@dateProperty} {@logProperty} {@exProperty} {@srcProperty}",
-                    DateTime.Now, "fromHandler", exception.Message, exception.Source);
-            }
+            _logger.LogError("{@dateProperty} {@logProperty} {@exProperty} {@srcProperty}",
+                DateTime.Now, exception.StackTrace, exception.Message,
+                exception.Source + " Global Exception Handler");
 
             httpContext.Response.StatusCode = errorResponse.StatusCode;
             problemDetails.Status = httpContext.Response.StatusCode;
