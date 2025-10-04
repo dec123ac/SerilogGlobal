@@ -70,6 +70,14 @@ var sinkOptions = new MSSqlServerSinkOptions
     TableName = "NewLogs"
 };
 
+/*
+
+Comment out the below builder.Services.AddSerilog and
+Serilog.Debugging.SelfLog.Enable sections to
+have VS Code launch a browser window as expected.
+
+*/
+
 builder.Services.AddSerilog((serviceProvider, loggerConfiguration) =>
 {
     loggerConfiguration
@@ -87,6 +95,14 @@ Serilog.Debugging.SelfLog.Enable(msg =>
     Debug.Print(msg);
     Debugger.Break();
 });
+
+/*
+
+Comment out the above builder.Services.AddSerilog and
+Serilog.Debugging.SelfLog.Enable sections to
+have VS Code launch a browser window as expected.
+
+*/
 
 var app = builder.Build();
 
